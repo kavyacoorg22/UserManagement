@@ -1,0 +1,1 @@
+export  const DEFAULT_IMG="https://www.w3schools.com/howto/img_avatar.png"

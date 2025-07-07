@@ -1,0 +1,49 @@
+import { useRef, useState } from "react";
+import { DEFAULT_IMG } from "../../../utils/constants";
+const Profile = () => {
+  const [preview, setPreview] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current.click();
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="bg-blue-300 rounded-lg shadow-lg p-6 w-full max-w-sm text-center">
+        <div onClick={handleClick} className="relative group cursor-pointer mx-auto w-32 h-32">
+          <img
+            src={preview || DEFAULT_IMG}
+            alt="Profile"
+            className="w-32 h-32 object-cover rounded-full border-4 border-white shadow-md group-hover:opacity-80 transition duration-300"
+          />
+          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition">
+            <span className="text-white text-sm">Click to Change</span>
+          </div>
+        </div>
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          ref={fileInputRef}
+          className="hidden"
+        />
+
+        <h4 className="text-xl font-semibold text-black mt-4">John Doe</h4>
+        <h5 className="text-sm text-black">john.doe@example.com</h5>
+        <h5 className="text-sm text-black">+1 123-456-7890</h5>
+        <p className="mt-3 text-amber-700">Developer with a love for React & Tailwind.</p>
+      </div>
+    </div>
+  );
+};
+
+export default Profile;
