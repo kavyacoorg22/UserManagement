@@ -1,12 +1,14 @@
 import Header from "./header"
 import Profile from "./profile"
-
-
+import AdminPanal from "../admin/adminPanel"
+import { useSelector } from "react-redux"
 const Home=()=>{
+  const currentUser=useSelector((store)=>store.user.currentUser)
+  const currentAdmin=useSelector((store)=>store.admin.currentAdmin)
   return(
     <div>
       <Header/>
-      <Profile/>
+       {currentAdmin ? <AdminPanal />: <Profile /> }
     </div>
   )
 }

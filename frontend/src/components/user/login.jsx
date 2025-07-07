@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 import { checkValidation } from "../../../utils/validation";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCurrentUser } from "../../../utils/userSlice";
 
 const Login = () => {
 const [isLogin,setLogin]=useState(true)
@@ -11,6 +13,8 @@ const number=useRef(null)
 const password=useRef(null)
 const confirmPassword=useRef(null)
 const navigate=useNavigate()
+
+const dispatch=useDispatch()
 
 const handleRegister=async()=>{
   const message=checkValidation(name.current.value,number.current.value,email.current.value,password.current.value,confirmPassword.current.value)
@@ -49,7 +53,9 @@ const handleLogin=async()=>{
    const data=await res.json()
    if(res.ok)
    {
-    alert("login is Sucessfull")
+    alert("login Sucessful")
+   localStorage.setItem("token",data.token)
+   dispatch(setCurrentUser(data.user))
     navigate('/home')
    }else
    {

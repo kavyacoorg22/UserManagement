@@ -18,7 +18,11 @@ const UserSchema=new mongoose.Schema({
   image:{
     type:String,
     default:"https://www.w3schools.com/howto/img_avatar.png"
+  },
+   isBlocked: {
+    type: Boolean,
+    default: false,
   }
-},{Timestamp:true})
+},{timestamps:true})
 
 module.exports=mongoose.model("User",UserSchema)
