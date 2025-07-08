@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { DEFAULT_IMG } from "../../../utils/constants";
 import { useSelector ,useDispatch} from "react-redux";
 import { updateProfileImage} from '../../../utils/userSlice'
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const [preview, setPreview] = useState(null);
@@ -34,14 +35,13 @@ const Profile = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Image uploaded");
+        toast.success("Image Uploaded")
         dispatch(updateProfileImage(data.user.image))
       } else {
-        alert(data.message || "Upload failed");
+        toast.error(data.message || "Upload failed");
       }
     } catch (err) {
-      console.error(err);
-      alert("Upload error");
+      toast.error("Upload error")
     }
   }
 };

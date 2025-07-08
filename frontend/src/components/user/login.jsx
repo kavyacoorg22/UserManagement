@@ -3,6 +3,7 @@ import { checkValidation } from "../../../utils/validation";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "../../../utils/userSlice";
+import { toast } from "react-toastify";
 
 const Login = () => {
 const [isLogin,setLogin]=useState(true)
@@ -34,10 +35,11 @@ const handleRegister=async()=>{
   const res=await data.json()
    if(data.ok)
    {
-    alert("Registered Successfully")
+    toast.success("Registered Successfully ");
     setLogin(true)
    }else{
     setErrorMessage(res.message||"Register Failed")
+     toast.error(res.message || "Register Failed");
    }
 }
 
@@ -53,16 +55,21 @@ const handleLogin=async()=>{
    const data=await res.json()
    if(res.ok)
    {
-    alert("login Sucessful")
+     toast.success("Login Successful ✅");
    localStorage.setItem("token",data.token)
    dispatch(setCurrentUser(data.user))
     navigate('/home')
    }else
    {
     setErrorMessage(data.message||"Login failed")
+      toast.error(data.message || "Login Failed ❌");
    }
 }
 
+ const toggleForm=()=>{
+    setLogin(!isLogin)
+    setErrorMessage("")
+ }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
       <form
@@ -112,7 +119,7 @@ const handleLogin=async()=>{
           </button>
            {errorMessage&& ( <p className="text-red-600 ">{errorMessage}</p>)}
           <p className="text-center text-sm text-gray-300">
-           {isLogin?"Not registered yet":"Already registered?"} <span className="text-indigo-400 cursor-pointer" onClick={()=>setLogin(prev=>!prev)}>{isLogin?"Register":"login"}</span>
+           {isLogin?"Not registered yet":"Already registered?"} <span className="text-indigo-400 cursor-pointer" onClick={toggleForm}>{isLogin?"Register":"login"}</span>
           </p>
         </div>
       </form>

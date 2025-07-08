@@ -19,6 +19,7 @@ const userSlice=createSlice({
     state.currentUser.image = action.payload;
     }
    },
+   
    getUsers: (state, action) => {
      state.users;
    },
