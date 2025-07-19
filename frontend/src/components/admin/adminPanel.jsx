@@ -1,7 +1,7 @@
 import { DEFAULT_IMG } from "../../../utils/constants";
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUsers } from '../../../utils/userSlice';
+import { setUsers, deleteUser } from '../../../utils/userSlice';
 
 const AdminPanal = () => {
   const dispatch = useDispatch();
@@ -9,20 +9,16 @@ const AdminPanal = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const token = localStorage.getItem('token');
       try {
         const res = await fetch('/user/all', {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+          credentials: 'include', 
         });
 
         const data = await res.json();
 
         if (res.ok) {
-          dispatch(setUsers(data.users)); // ✅ This sets an array
+          dispatch(setUsers(data.users));
         } else {
           console.error("Failed to fetch users:", data.message || 'Unknown error');
         }
@@ -35,14 +31,10 @@ const AdminPanal = () => {
   }, [dispatch]);
 
   const handleBlockToggle = async (userId) => {
-    const token = localStorage.getItem("token");
-
     try {
       const res = await fetch(`/user/block/${userId}`, {
         method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
+        credentials: "include", 
       });
 
       const data = await res.json();
@@ -50,7 +42,6 @@ const AdminPanal = () => {
       if (res.ok) {
         alert(data.message);
 
-        // ✅ Correct way: update the array before dispatch
         const updatedUsers = users.map((u) =>
           u._id === userId ? data.user : u
         );
@@ -64,12 +55,36 @@ const AdminPanal = () => {
     }
   };
 
+  const handleDeleteUser = async (userId) => {
+    const confirm = window.confirm("Are you sure you want to delete this user?");
+    if (!confirm) return;
+
+    try {
+      const res = await fetch(`/user/${userId}`, {
+        method: "DELETE",
+        credentials: "include", 
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(data.message || "User deleted");
+        dispatch(deleteUser(userId));
+      } else {
+        alert(data.message || "Error deleting user");
+      }
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      alert("Error deleting user");
+    }
+  };
+
   if (!Array.isArray(users)) {
     return <p className="text-center text-red-500">Invalid user data</p>;
   }
 
   return (
-    <div className="flex flex-wrap gap-4 p-4 mx-9">
+    <div className="flex flex-wrap gap-4 p-4 mx-28">
       {users.map((user) => (
         <div key={user._id} className="bg-gray-600 p-4 w-full max-w-xs rounded-lg shadow-md text-center">
           <div className="relative group cursor-pointer mx-auto w-28 h-28 mb-3">
@@ -91,8 +106,12 @@ const AdminPanal = () => {
             >
               {user.isBlocked ? 'Unblock' : 'Block'}
             </button>
-            <button className="px-4 py-2 mt-2 bg-indigo-400 text-black rounded hover:bg-indigo-600 transition">
-              Edit
+
+            <button
+              className="px-4 py-2 mt-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+              onClick={() => handleDeleteUser(user._id)}
+            >
+              Delete
             </button>
           </div>
         </div>

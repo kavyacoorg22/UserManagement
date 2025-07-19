@@ -6,9 +6,11 @@ const bcrypt=require('bcrypt')
 require("dotenv").config()
 const multer = require('multer');
 const path = require('path');
-
+const adminAuth=require('../middleware/adminAuth')
+const validateRegister=require('../middleware/validator')
 const authenticate = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+    const token = req.cookies.token; 
+
   if (!token) return res.status(401).json({ message: "Token missing" });
 
   try {
@@ -16,11 +18,11 @@ const authenticate = (req, res, next) => {
     req.userId = decoded.id;
     next();
   } catch (err) {
-    return res.status(403).json({ message: "Invalid token" });
+    return res.status(401).json({ message: "Invalid token" });
   }
 };
 
-router.post('/register',async(req,res)=>{
+router.post('/register',validateRegister,async(req,res)=>{
   const {name,number,email,password}=req.body;
   try{
    const existUser=await User.findOne({email})
@@ -53,7 +55,18 @@ router.post('/',async(req,res)=>{
     if (user.isBlocked) return res.status(403).json({ message:"You are blocked by the admin" });
 
     const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"1h"})
-    return res.status(200).json({message:"Login Successs",token,user})
+   
+      res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict", 
+      maxAge: 60 * 60 * 1000 
+    });
+      const { password: _, ...userWithoutPassword } = user.toObject();
+  
+
+    return res.status(200).json({ message: "Login Success", user: userWithoutPassword});
+    
 
   }catch(err)
   {
@@ -63,7 +76,21 @@ router.post('/',async(req,res)=>{
 })
 
 
-router.get('/all', async (req, res) => {
+
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'Strict',
+  });
+  return res.status(200).json({ message: 'User logged out successfully' });
+});
+
+
+
+
+
+router.get('/all',adminAuth, async (req, res) => {
   try {
     const users = await User.find({}, '-password'); 
     return res.status(200).json({ users });
@@ -73,7 +100,7 @@ router.get('/all', async (req, res) => {
   }
 });
 
-router.put('/block/:id', async (req, res) => {
+router.put('/block/:id', adminAuth,async (req, res) => {
   try {
     const userId = req.params.id;
 
@@ -89,6 +116,22 @@ router.put('/block/:id', async (req, res) => {
     res.status(500).json({ message: 'Something went wrong' });
   }
 });
+router.delete('/:id',adminAuth, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const deletedUser = await User.findByIdAndDelete(userId);
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User deleted successfully', user: deletedUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Something went wrong while deleting user' });
+  }
+});
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

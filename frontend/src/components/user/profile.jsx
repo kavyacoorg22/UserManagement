@@ -26,9 +26,7 @@ const Profile = () => {
 
       const res = await fetch("/user/upload-profile", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
+        credentials: "include",
         body: formData,
       });
 

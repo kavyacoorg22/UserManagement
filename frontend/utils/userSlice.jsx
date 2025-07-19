@@ -4,7 +4,7 @@ const userSlice=createSlice({
   name:"User",
   initialState:{
      users: [],
-    currentUser: null
+    currentUser: null,
   },
   reducers:{
     setCurrentUser: (state, action) => {
@@ -12,24 +12,24 @@ const userSlice=createSlice({
     },
     logoutUser: (state) => {
       state.currentUser = null;
-      localStorage.removeItem('token');
     },
     updateProfileImage: (state, action) => {
      if (state.currentUser) {
     state.currentUser.image = action.payload;
     }
    },
-   
-   getUsers: (state, action) => {
-     state.users;
-   },
     setUsers: (state, action) => {
       state.users = action.payload;
-    }   
+    },
+   deleteUser: (state, action) => {
+  state.users = state.users.filter(user => user._id !== action.payload);
+},
+
+   
   }
 })
 
 
-export const {setCurrentUser,logoutUser,updateProfileImage,setUsers,getUsers}=userSlice.actions
+export const {setCurrentUser,logoutUser,updateProfileImage,setUsers,getUsers,deleteUser}=userSlice.actions
 
 export default userSlice.reducer;

@@ -16,7 +16,7 @@ export const loginUser = (email, password, navigate) => async (dispatch) => {
     if (res.ok) {
       toast.success("Login Successful ");
       dispatch(setCurrentUser(data.user));
-     
+      
       navigate("/home",{replace:true});
     } else {
       toast.error(data.message || "Login Failed ");
@@ -40,7 +40,7 @@ export const registerUser = (formData, setLogin, setErrorMessage) => async (disp
       toast.success("Registered Successfully");
       setLogin(true);
     } else {
-      setErrorMessage(data.message || "Register Failed");
+      
       toast.error(data.message || "Register Failed");
     }
   } catch (err) {

@@ -2,8 +2,8 @@ import { useRef, useState } from "react";
 import { checkValidation } from "../../../utils/validation";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCurrentUser } from "../../../utils/userSlice";
-import { toast } from "react-toastify";
+import { loginUser,registerUser } from "../../../utils/userThunks";
+
 
 const Login = () => {
 const [isLogin,setLogin]=useState(true)
@@ -17,54 +17,34 @@ const navigate=useNavigate()
 
 const dispatch=useDispatch()
 
-const handleRegister=async()=>{
-  const message=checkValidation(name.current.value,number.current.value,email.current.value,password.current.value,confirmPassword.current.value)
-    setErrorMessage(message)
-    if(message) return
- 
-  const data=await fetch('/user/register',{
-        method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name:name.current.value,
-        number:number.current.value,
-        email: email.current.value,
-        password: password.current.value,
-      })
-    })
-  const res=await data.json()
-   if(data.ok)
-   {
-    toast.success("Registered Successfully ");
-    setLogin(true)
-   }else{
-    setErrorMessage(res.message||"Register Failed")
-     toast.error(res.message || "Register Failed");
-   }
-}
+const handleRegister = () => {
+    const message = checkValidation(
+      name.current.value,
+      number.current.value,
+      email.current.value,
+      password.current.value,
+      confirmPassword.current.value
+    );
+    setErrorMessage(message);
+    if (message) return;
 
-const handleLogin=async()=>{
-  const res=await fetch('/user/',{
-    method:"POST",
-     headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: email.current.value,
-        password: password.current.value,
-      })
-   })
-   const data=await res.json()
-   if(res.ok)
-   {
-     toast.success("Login Successful ✅");
-   localStorage.setItem("token",data.token)
-   dispatch(setCurrentUser(data.user))
-    navigate('/home')
-   }else
-   {
-    setErrorMessage(data.message||"Login failed")
-      toast.error(data.message || "Login Failed ❌");
-   }
-}
+    const formData = {
+      name: name.current.value,
+      number: number.current.value,
+      email: email.current.value,
+      password: password.current.value,
+    };
+
+    dispatch(registerUser(formData, setLogin, setErrorMessage));
+  };
+
+  const handleLogin = () => {
+    if (!email.current.value || !password.current.value) {
+      setErrorMessage("Email and password are required");
+      return;
+    }
+    dispatch(loginUser(email.current.value, password.current.value, navigate));
+  };
 
  const toggleForm=()=>{
     setLogin(!isLogin)
